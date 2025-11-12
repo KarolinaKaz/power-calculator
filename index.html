@@ -9,7 +9,7 @@
 </body>
 
 <script>
-    // Функции для работы с Cookies как в документах
+    
     function set_cookie(name, value) {
         const expires = new Date();
         expires.setTime(expires.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7 дней
@@ -32,37 +32,35 @@
     }
 
     function DelCook() {
+        delete_cookie("power");
         delete_cookie("voltage");
         delete_cookie("current");
-        delete_cookie("power");
         
-        // Очищаем поля ввода
         input1.value = '';
         input2.value = '';
         resultDiv.textContent = '';
         
-        // Показываем сообщение
         alert('Все куки удалены!');
         updateCookieInfo();
     }
 
     function saveToCookies(voltage, current, power) {
+        
+        set_cookie("power", power);
         set_cookie("voltage", voltage);
         set_cookie("current", current);
-        set_cookie("power", power);
     }
 
     function loadFromCookies() {
+        var P = get_cookie("power");
         var U = get_cookie("voltage");
         var I = get_cookie("current");
-        var P = get_cookie("power");
         
+        if (P) resultDiv.textContent = "Мощность: " + P + " Вт";
         if (U) input1.value = U;
         if (I) input2.value = I;
-        if (P) resultDiv.textContent = "Мощность: " + P + " Вт";
     }
 
-    // Создаем элементы интерфейса
     var input1 = document.createElement('input');
     document.body.appendChild(input1);
     input1.id = "input1";
@@ -83,7 +81,6 @@
     var p2 = document.createElement('p');
     document.body.appendChild(p2);
 
-    // Кнопка вычисления
     var button = document.createElement('button');
     document.body.appendChild(button);
     button.textContent = "Вычислить мощность";
@@ -94,7 +91,6 @@
     var p3 = document.createElement('p');
     document.body.appendChild(p3);
 
-    // Кнопка удаления куки (под кнопкой вычисления)
     var deleteButton = document.createElement('button');
     document.body.appendChild(deleteButton);
     deleteButton.textContent = "Удалить куки";
@@ -112,7 +108,6 @@
     resultDiv.style.fontWeight = "bold";
     resultDiv.style.marginTop = "10px";
 
-    // Информация о куки
     var cookieInfo = document.createElement('div');
     document.body.appendChild(cookieInfo);
     cookieInfo.id = "cookieInfo";
@@ -120,7 +115,6 @@
     cookieInfo.style.color = "#666";
     cookieInfo.style.marginTop = "10px";
 
-    // Функция вычисления мощности
     button.onclick = function() {
         var voltage = parseFloat(input1.value);
         var current = parseFloat(input2.value);
@@ -140,15 +134,12 @@
         
         resultDiv.textContent = "Мощность: " + roundedPower + " Вт";
         
-        // Сохраняем в куки
         saveToCookies(voltage, current, roundedPower);
         updateCookieInfo();
     };
 
-    // Функция удаления куки
     deleteButton.onclick = DelCook;
 
-    // Обработчики Enter
     input1.addEventListener('keypress', function(event) {
         if (event.key === 'Enter') {
             button.onclick();
@@ -161,26 +152,23 @@
         }
     });
 
-    // Функция обновления информации о куки
     function updateCookieInfo() {
+        const hasPower = get_cookie("power");
         const hasVoltage = get_cookie("voltage");
         const hasCurrent = get_cookie("current");
-        const hasPower = get_cookie("power");
         
-        if (hasVoltage && hasCurrent && hasPower) {
+        if (hasPower && hasVoltage && hasCurrent) {
             cookieInfo.textContent = "✓ Данные сохранены в cookies";
         } else {
             cookieInfo.textContent = "Нет сохраненных данных";
         }
     }
 
-    // Загружаем сохраненные данные при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
         loadFromCookies();
         updateCookieInfo();
     });
 
-    // Загружаем данные сразу (на случай если DOM уже загружен)
     loadFromCookies();
     updateCookieInfo();
 </script>
