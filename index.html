@@ -9,14 +9,14 @@
 </body>
 
 <script>
-    // Функции для работы с Cookies
-    function setCookie(name, value, days) {
+    // Функции для работы с Cookies как в документах
+    function set_cookie(name, value) {
         const expires = new Date();
-        expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires.setTime(expires.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7 дней
         document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
     }
 
-    function getCookie(name) {
+    function get_cookie(name) {
         const nameEQ = name + "=";
         const ca = document.cookie.split(';');
         for(let i = 0; i < ca.length; i++) {
@@ -27,15 +27,14 @@
         return null;
     }
 
-    function deleteCookie(name) {
+    function delete_cookie(name) {
         document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
     }
 
-    function deleteAllCookies() {
-        // Удаляем все куки калькулятора
-        deleteCookie('voltage');
-        deleteCookie('current');
-        deleteCookie('power');
+    function DelCook() {
+        delete_cookie("voltage");
+        delete_cookie("current");
+        delete_cookie("power");
         
         // Очищаем поля ввода
         input1.value = '';
@@ -44,27 +43,23 @@
         
         // Показываем сообщение
         alert('Все куки удалены!');
+        updateCookieInfo();
     }
-function saveToCookies(voltage, current, power) {
-        // Сначала удаляем старые куки в правильном порядке
-        deleteCookie('voltage');
-        deleteCookie('current');
-        deleteCookie('power');
-        
-        // Затем создаем новые в нужном порядке
-        setCookie('voltage', voltage, 7);
-        setCookie('current', current, 7);
-        setCookie('power', power, 7);
+
+    function saveToCookies(voltage, current, power) {
+        set_cookie("voltage", voltage);
+        set_cookie("current", current);
+        set_cookie("power", power);
     }
 
     function loadFromCookies() {
-        const savedVoltage = getCookie('voltage');
-        const savedCurrent = getCookie('current');
-        const savedPower = getCookie('power');
+        var U = get_cookie("voltage");
+        var I = get_cookie("current");
+        var P = get_cookie("power");
         
-        if (savedVoltage) input1.value = savedVoltage;
-        if (savedCurrent) input2.value = savedCurrent;
-        if (savedPower) resultDiv.textContent = "Мощность: " + savedPower + " Вт";
+        if (U) input1.value = U;
+        if (I) input2.value = I;
+        if (P) resultDiv.textContent = "Мощность: " + P + " Вт";
     }
 
     // Создаем элементы интерфейса
@@ -151,10 +146,7 @@ function saveToCookies(voltage, current, power) {
     };
 
     // Функция удаления куки
-    deleteButton.onclick = function() {
-        deleteAllCookies();
-        updateCookieInfo();
-    };
+    deleteButton.onclick = DelCook;
 
     // Обработчики Enter
     input1.addEventListener('keypress', function(event) {
@@ -171,9 +163,9 @@ function saveToCookies(voltage, current, power) {
 
     // Функция обновления информации о куки
     function updateCookieInfo() {
-        const hasVoltage = getCookie('voltage');
-        const hasCurrent = getCookie('current');
-        const hasPower = getCookie('power');
+        const hasVoltage = get_cookie("voltage");
+        const hasCurrent = get_cookie("current");
+        const hasPower = get_cookie("power");
         
         if (hasVoltage && hasCurrent && hasPower) {
             cookieInfo.textContent = "✓ Данные сохранены в cookies";
