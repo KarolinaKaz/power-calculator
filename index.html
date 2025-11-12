@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор мощности с Cookies</title>
+</head>
+<body>
+</body>
+
+<script>
+    // Функции для работы с Cookies
+    function setCookie(name, value, days) {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+        document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+    }
+
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+
+    function deleteCookie(name) {
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+    }
+
+    function deleteAllCookies() {
+        // Удаляем все куки калькулятора
+        deleteCookie('voltage');
+        deleteCookie('current');
+        deleteCookie('power');
+        
+        // Очищаем поля ввода
+        input1.value = '';
+        input2.value = '';
+        resultDiv.textContent = '';
+        
+        // Показываем сообщение
+        alert('Все куки удалены!');
+    }
+
+    function saveToCookies(voltage, current, power) {
+        setCookie('voltage', voltage, 7); // сохраняем на 7 дней
+        setCookie('current', current, 7);
+        setCookie('power', power, 7);
+    }
+
+    function loadFromCookies() {
+        const savedVoltage = getCookie('voltage');
+        const savedCurrent = getCookie('current');
+        const savedPower = getCookie('power');
+        
+        if (savedVoltage) input1.value = savedVoltage;
+        if (savedCurrent) input2.value = savedCurrent;
+        if (savedPower) resultDiv.textContent = "Мощность: " + savedPower + " Вт";
+    }
+
+    // Создаем элементы интерфейса
+    var input1 = document.createElement('input');
+    document.body.appendChild(input1);
+    input1.id = "input1";
+    input1.style.height = "24px";
+    input1.style.width = "120px";
+    input1.placeholder = "Напряжение (В)";
+
+    var p1 = document.createElement('p');
+    document.body.appendChild(p1);
+
+    var input2 = document.createElement('input');
+    document.body.appendChild(input2);
+    input2.id = "input2";
+    input2.style.height = "24px";
+    input2.style.width = "120px";
+    input2.placeholder = "Сила тока (А)";
+
+    var p2 = document.createElement('p');
+    document.body.appendChild(p2);
+
+    // Кнопка вычисления
+    var button = document.createElement('button');
+    document.body.appendChild(button);
+    button.textContent = "Вычислить мощность";
+    button.style.height = "30px";
+    button.style.width = "200px";
+    button.style.cursor = "pointer";
+
+    var p3 = document.createElement('p');
+    document.body.appendChild(p3);
+
+    // Кнопка удаления куки (под кнопкой вычисления)
+    var deleteButton = document.createElement('button');
+    document.body.appendChild(deleteButton);
+    deleteButton.textContent = "Удалить куки";
+    deleteButton.style.height = "30px";
+    deleteButton.style.width = "200px";
+    deleteButton.style.cursor = "pointer";
+
+    var p4 = document.createElement('p');
+    document.body.appendChild(p4);
+
+    var resultDiv = document.createElement('div');
+    document.body.appendChild(resultDiv);
+    resultDiv.id = "result";
+    resultDiv.style.fontSize = "18px";
+    resultDiv.style.fontWeight = "bold";
+    resultDiv.style.marginTop = "10px";
+
+    // Информация о куки
+    var cookieInfo = document.createElement('div');
+    document.body.appendChild(cookieInfo);
+    cookieInfo.id = "cookieInfo";
+    cookieInfo.style.fontSize = "12px";
+    cookieInfo.style.color = "#666";
+    cookieInfo.style.marginTop = "10px";
+
+    // Функция вычисления мощности
+    button.onclick = function() {
+        var voltage = parseFloat(input1.value);
+        var current = parseFloat(input2.value);
+        
+        if (isNaN(voltage) || isNaN(current)) {
+            resultDiv.textContent = "Введите числа!";
+            return;
+        }
+        
+        if (voltage <= 0 || current <= 0) {
+            resultDiv.textContent = "Значения должны быть > 0!";
+            return;
+        }
+        
+        var power = voltage * current;
+        var roundedPower = Math.round(power);
+        
+        resultDiv.textContent = "Мощность: " + roundedPower + " Вт";
+        
+        // Сохраняем в куки
+        saveToCookies(voltage, current, roundedPower);
+        updateCookieInfo();
+    };
+
+    // Функция удаления куки
+    deleteButton.onclick = function() {
+        deleteAllCookies();
+        updateCookieInfo();
+    };
+
+    // Обработчики Enter
+    input1.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            button.onclick();
+        }
+    });
+
+    input2.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            button.onclick();
+        }
+    });
+
+    // Функция обновления информации о куки
+    function updateCookieInfo() {
+        const hasVoltage = getCookie('voltage');
+        const hasCurrent = getCookie('current');
+        const hasPower = getCookie('power');
+        
+        if (hasVoltage && hasCurrent && hasPower) {
+            cookieInfo.textContent = "✓ Данные сохранены в cookies";
+        } else {
+            cookieInfo.textContent = "Нет сохраненных данных";
+        }
+    }
+
+    // Загружаем сохраненные данные при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        loadFromCookies();
+        updateCookieInfo();
+    });
+
+    // Загружаем данные сразу (на случай если DOM уже загружен)
+    loadFromCookies();
+    updateCookieInfo();
+</script>
+</html>
