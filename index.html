@@ -45,9 +45,14 @@
         // Показываем сообщение
         alert('Все куки удалены!');
     }
-
-    function saveToCookies(voltage, current, power) {
-        setCookie('voltage', voltage, 7); // сохраняем на 7 дней
+function saveToCookies(voltage, current, power) {
+        // Сначала удаляем старые куки в правильном порядке
+        deleteCookie('voltage');
+        deleteCookie('current');
+        deleteCookie('power');
+        
+        // Затем создаем новые в нужном порядке
+        setCookie('voltage', voltage, 7);
         setCookie('current', current, 7);
         setCookie('power', power, 7);
     }
